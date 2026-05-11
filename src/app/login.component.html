@@ -2,18 +2,15 @@
   <div>
     <label for="email">Email</label>
     <input id="email" type="email" formControlName="email" />
-    <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['required']">
-      Email is required
-    </div>
-    <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['email']">
-      Enter a valid email
+    <div *ngIf="isInvalid('email')">
+      Invalid email
     </div>
   </div>
 
   <div>
     <label for="password">Password</label>
     <input id="password" type="password" formControlName="password" />
-    <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']">
+    <div *ngIf="isInvalid('password')">
       Password is required
     </div>
   </div>
