@@ -33,11 +33,15 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
       </div>
 
       <button type="submit">Register</button>
+
+      <div *ngIf="submitError">{{ submitError }}</div>
     </form>
   `
 })
 export class RegisterComponent {
   private readonly formBuilder = inject(FormBuilder);
+  hasVoted = false;
+  submitError = '';
 
   readonly registerForm = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
@@ -57,8 +61,17 @@ export class RegisterComponent {
       return;
     }
 
+    this.submitError = '';
     const users = JSON.parse(localStorage.getItem('users') || '[]');
-    users.push(this.registerForm.getRawValue());
+    const formValue = this.registerForm.getRawValue();
+    const existingUser = users.find((user: { aadhaar: string }) => user.aadhaar === formValue.aadhaar);
+
+    if (existingUser) {
+      this.submitError = 'User already exists';
+      return;
+    }
+
+    users.push({ ...formValue, hasVoted: false });
     localStorage.setItem('users', JSON.stringify(users));
     this.registerForm.reset();
   }

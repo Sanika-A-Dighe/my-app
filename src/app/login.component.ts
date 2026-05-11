@@ -7,7 +7,25 @@ import { Router } from '@angular/router';
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './login.component.html'
+  template: `
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div>
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" />
+        <div *ngIf="isInvalid('email')">Enter a valid email.</div>
+      </div>
+
+      <div>
+        <label for="password">Password</label>
+        <input id="password" type="password" formControlName="password" />
+        <div *ngIf="isInvalid('password')">Password is required.</div>
+      </div>
+
+      <button type="submit">Login</button>
+
+      <div *ngIf="errorMessage">{{ errorMessage }}</div>
+    </form>
+  `
 })
 export class LoginComponent {
   private readonly formBuilder = inject(FormBuilder);
