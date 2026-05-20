@@ -3,7 +3,7 @@
 
   <div *ngIf="!hasVoted">
     <p>You have not voted yet</p>
-    <button type="button">Go to Vote</button>
+    <button type="button" routerLink="/candidates">Go to Vote</button>
   </div>
 
   <div *ngIf="hasVoted">

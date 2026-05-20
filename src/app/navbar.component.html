@@ -1,0 +1,12 @@
+<nav class="navbar">
+  <a class="title" routerLink="/dashboard">Online Voting System</a>
+
+  <div class="right-section">
+    <span class="user">{{ displayUser }}</span>
+    <a routerLink="/receipt" class="nav-btn">Voting Receipt</a>
+    <button type="button" class="nav-btn" (click)="toggleDarkMode()">
+      {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
+    </button>
+    <button type="button" class="nav-btn logout-btn" (click)="logout()">Logout</button>
+  </div>
+</nav>

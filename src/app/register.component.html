@@ -1,0 +1,31 @@
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="name">Name</label>
+    <input id="name" type="text" formControlName="name" />
+    <div *ngIf="isInvalid('name')">Name is required.</div>
+  </div>
+
+  <div>
+    <label for="email">Email</label>
+    <input id="email" type="email" formControlName="email" />
+    <div *ngIf="isInvalid('email')">Enter a valid email.</div>
+  </div>
+
+  <div>
+    <label for="password">Password</label>
+    <input id="password" type="password" formControlName="password" />
+    <div *ngIf="isInvalid('password')">Password must be at least 6 characters.</div>
+  </div>
+
+  <div>
+    <label for="aadhaar">Aadhaar</label>
+    <input id="aadhaar" type="text" formControlName="aadhaar" maxlength="12" />
+    <div *ngIf="isInvalid('aadhaar')">Aadhaar must be exactly 12 digits.</div>
+  </div>
+
+  <button type="submit">Register</button>
+
+  <p>Already have an account? <a routerLink="/login">Login</a></p>
+
+  <div *ngIf="submitError">{{ submitError }}</div>
+</form>

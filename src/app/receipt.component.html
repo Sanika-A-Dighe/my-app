@@ -1,0 +1,32 @@
+<section class="receipt-container">
+  <div class="receipt-card">
+    <h1>Voting Receipt</h1>
+
+    <div class="row">
+      <span class="label">Voter Name</span>
+      <span class="value">{{ receipt.voterName }}</span>
+    </div>
+
+    <div class="row">
+      <span class="label">Voter Aadhaar</span>
+      <span class="value">{{ receipt.voterAadhaar }}</span>
+    </div>
+
+    <div class="row">
+      <span class="label">Selected Candidate</span>
+      <span class="value">{{ receipt.candidateName }}</span>
+    </div>
+
+    <div class="row">
+      <span class="label">Party Name</span>
+      <span class="value">{{ receipt.partyName }}</span>
+    </div>
+
+    <div class="row">
+      <span class="label">Date and Time</span>
+      <span class="value">{{ receipt.votedAt }}</span>
+    </div>
+
+    <button type="button" (click)="downloadReceipt()">Download Receipt</button>
+  </div>
+</section>
