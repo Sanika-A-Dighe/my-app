@@ -5,14 +5,7 @@ import { Component } from '@angular/core';
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div>
-      <h2>Dashboard</h2>
-      <p>Name: {{ userName }}</p>
-      <p *ngIf="hasVoted">User has already voted.</p>
-      <p *ngIf="!hasVoted">User has not voted.</p>
-    </div>
-  `
+  templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent {
   currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');

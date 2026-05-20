@@ -1,0 +1,13 @@
+<div>
+  <h2>Welcome, {{ currentUser?.name }}</h2>
+
+  <div *ngIf="!hasVoted">
+    <p>You have not voted yet</p>
+    <button type="button">Go to Vote</button>
+  </div>
+
+  <div *ngIf="hasVoted">
+    <p>You have already voted</p>
+    <button type="button" disabled>Go to Vote</button>
+  </div>
+</div>
