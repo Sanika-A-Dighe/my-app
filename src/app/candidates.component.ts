@@ -25,6 +25,13 @@ export class CandidatesComponent {
 
   vote(candidate: Candidate): void {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    const aadhaar = currentUser?.aadhaar;
+    const votedAadhaars = JSON.parse(localStorage.getItem('votedAadhaars') || '[]');
+
+    if (aadhaar && votedAadhaars.includes(aadhaar)) {
+      alert('This Aadhaar has already voted');
+      return;
+    }
 
     if (currentUser?.hasVoted) {
       alert('You have already voted');
@@ -36,6 +43,10 @@ export class CandidatesComponent {
 
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     localStorage.setItem('candidates', JSON.stringify(this.candidates));
+    if (aadhaar) {
+      votedAadhaars.push(aadhaar);
+      localStorage.setItem('votedAadhaars', JSON.stringify(votedAadhaars));
+    }
     alert('Vote submitted successfully');
   }
 }
