@@ -1,0 +1,6 @@
+<div *ngFor="let candidate of candidates">
+  <h3>{{ candidate.name }}</h3>
+  <p>Party: {{ candidate.party }}</p>
+  <p>Total Votes: {{ candidate.votes }}</p>
+  <button type="button" (click)="vote(candidate)">Vote</button>
+</div>
