@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 type Candidate = {
@@ -12,7 +13,7 @@ type Candidate = {
 @Component({
   selector: 'app-candidates',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './candidates.component.html',
   styleUrl: './candidates.component.css'
 })
@@ -30,6 +31,11 @@ export class CandidatesComponent implements OnInit, OnDestroy {
   currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
   countdown = '00:00:00';
   isElectionEnded = false;
+  showOtpPopup = false;
+  generatedOtp = '';
+  enteredOtp = '';
+  otpError = '';
+  selectedCandidate: Candidate | null = null;
 
   ngOnInit(): void {
     if (!this.currentUser) {
@@ -46,6 +52,40 @@ export class CandidatesComponent implements OnInit, OnDestroy {
   }
 
   vote(candidate: Candidate): void {
+    if (this.isElectionEnded) {
+      alert('Election has ended');
+      return;
+    }
+
+    this.selectedCandidate = candidate;
+    this.generatedOtp = this.generateOtp();
+    this.enteredOtp = '';
+    this.otpError = '';
+    this.showOtpPopup = true;
+  }
+
+  verifyOtpAndSubmit(): void {
+    if (this.enteredOtp !== this.generatedOtp) {
+      this.otpError = 'Invalid OTP';
+      return;
+    }
+
+    if (!this.selectedCandidate) {
+      return;
+    }
+
+    this.showOtpPopup = false;
+    this.submitVote(this.selectedCandidate);
+  }
+
+  closeOtpPopup(): void {
+    this.showOtpPopup = false;
+    this.enteredOtp = '';
+    this.otpError = '';
+    this.selectedCandidate = null;
+  }
+
+  private submitVote(candidate: Candidate): void {
     if (this.isElectionEnded) {
       alert('Election has ended');
       return;
@@ -85,6 +125,10 @@ export class CandidatesComponent implements OnInit, OnDestroy {
     localStorage.setItem('voteReceipt', JSON.stringify(voteReceipt));
     alert('Vote submitted successfully');
     this.router.navigate(['/success']);
+  }
+
+  private generateOtp(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
   private startCountdown(): void {
