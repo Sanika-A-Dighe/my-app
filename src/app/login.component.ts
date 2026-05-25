@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -15,6 +16,7 @@ export class LoginComponent {
   private readonly router = inject(Router);
 
   errorMessage = '';
+  isHumanChecked = false;
 
   readonly loginForm = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -28,6 +30,11 @@ export class LoginComponent {
 
   onSubmit(): void {
     this.errorMessage = '';
+
+    if (!this.isHumanChecked) {
+      this.errorMessage = 'Please verify "I am not a robot"';
+      return;
+    }
 
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();

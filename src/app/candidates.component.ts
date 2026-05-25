@@ -31,6 +31,7 @@ export class CandidatesComponent implements OnInit, OnDestroy {
   currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
   countdown = '00:00:00';
   isElectionEnded = false;
+  isHumanChecked = false;
   showOtpPopup = false;
   generatedOtp = '';
   enteredOtp = '';
@@ -52,6 +53,11 @@ export class CandidatesComponent implements OnInit, OnDestroy {
   }
 
   vote(candidate: Candidate): void {
+    if (!this.isHumanChecked) {
+      alert('Please verify "I am not a robot"');
+      return;
+    }
+
     if (this.isElectionEnded) {
       alert('Election has ended');
       return;

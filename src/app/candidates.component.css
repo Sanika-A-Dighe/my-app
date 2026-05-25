@@ -3,7 +3,22 @@
   padding: 24px;
 }
 
-div {
+.captcha-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(720px, 100%);
+  margin: 0 auto 14px;
+  font-size: 14px;
+  color: #111827;
+}
+
+.captcha-check input {
+  width: 16px;
+  height: 16px;
+}
+
+.candidate-card {
   width: min(720px, 100%);
   margin: 0 auto 16px;
   background: #ffffff;
@@ -14,7 +29,7 @@ div {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-div:hover {
+.candidate-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 14px 28px rgba(16, 24, 40, 0.1);
 }
@@ -50,4 +65,51 @@ button:disabled {
   background: #94a3b8;
   cursor: not-allowed;
   transform: none;
+}
+
+.otp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 200;
+}
+
+.otp-modal {
+  width: min(420px, 100%);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 20px 40px rgba(16, 24, 40, 0.2);
+}
+
+.otp-code {
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.otp-modal input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+}
+
+.otp-error {
+  color: #b42318;
+  margin-top: 8px;
+}
+
+.otp-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+}
+
+.otp-actions .secondary {
+  background: #e5e7eb;
+  color: #111827;
 }

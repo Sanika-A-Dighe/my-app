@@ -45,6 +45,20 @@ form > div > div {
   margin-top: 6px;
 }
 
+.captcha-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #111827;
+}
+
+.captcha-check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
 button {
   margin-top: 4px;
   padding: 11px 14px;

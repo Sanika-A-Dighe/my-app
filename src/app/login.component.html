@@ -15,8 +15,13 @@
     </div>
   </div>
 
+  <label class="captcha-check">
+    <input type="checkbox" [(ngModel)]="isHumanChecked" [ngModelOptions]="{ standalone: true }" />
+    <span>I am not a robot</span>
+  </label>
+
   <div *ngIf="errorMessage">
-    Invalid credentials
+    {{ errorMessage }}
   </div>
 
   <button type="submit">Login</button>
