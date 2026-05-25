@@ -51,6 +51,14 @@ export class NavbarComponent {
 
   logout(): void {
     if (this.isBrowser) {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const auditLogs = JSON.parse(localStorage.getItem('auditLogs') || '[]');
+      auditLogs.push({
+        action: 'Logout',
+        username: currentUser?.name || currentUser?.email || 'User',
+        timestamp: new Date().toLocaleString()
+      });
+      localStorage.setItem('auditLogs', JSON.stringify(auditLogs));
       localStorage.removeItem('currentUser');
     }
     this.router.navigate(['/login']);

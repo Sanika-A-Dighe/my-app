@@ -37,3 +37,13 @@ p {
   margin: 8px 0;
   color: #334155;
 }
+
+@media (max-width: 640px) {
+  .card-page {
+    padding: 16px;
+  }
+
+  .voter-card {
+    padding: 18px;
+  }
+}

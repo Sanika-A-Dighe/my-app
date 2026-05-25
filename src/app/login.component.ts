@@ -49,6 +49,13 @@ export class LoginComponent {
 
     if (matchedUser) {
       localStorage.setItem('currentUser', JSON.stringify(matchedUser));
+      const auditLogs = JSON.parse(localStorage.getItem('auditLogs') || '[]');
+      auditLogs.push({
+        action: 'User Login',
+        username: matchedUser.name || matchedUser.email || email,
+        timestamp: new Date().toLocaleString()
+      });
+      localStorage.setItem('auditLogs', JSON.stringify(auditLogs));
       this.router.navigate(['/dashboard']);
       return;
     }

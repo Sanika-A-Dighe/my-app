@@ -113,3 +113,27 @@ button:disabled {
   background: #e5e7eb;
   color: #111827;
 }
+
+@media (max-width: 768px) {
+  :host {
+    padding: 16px;
+  }
+
+  .candidate-card {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .otp-modal {
+    padding: 14px;
+  }
+
+  .otp-actions {
+    flex-direction: column;
+  }
+
+  .otp-actions button {
+    width: 100%;
+  }
+}

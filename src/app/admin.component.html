@@ -1,0 +1,48 @@
+<section class="admin-page">
+  <div class="admin-card" *ngIf="!isAdminLoggedIn">
+    <h2>Admin Login</h2>
+    <label for="adminEmail">Email</label>
+    <input id="adminEmail" type="email" [(ngModel)]="adminEmail" />
+
+    <label for="adminPassword">Password</label>
+    <input id="adminPassword" type="password" [(ngModel)]="adminPassword" />
+
+    <button type="button" (click)="loginAdmin()">Login</button>
+    <p class="error" *ngIf="loginError">{{ loginError }}</p>
+  </div>
+
+  <div class="admin-card" *ngIf="isAdminLoggedIn">
+    <h2>Admin Dashboard</h2>
+    <p>Election Status: <strong>{{ electionStatus }}</strong></p>
+    <div class="status-actions">
+      <button type="button" (click)="startElection()" [disabled]="electionStatus === 'Active'">Start Election</button>
+      <button type="button" class="delete-btn" (click)="endElection()" [disabled]="electionStatus === 'Closed'">End Election</button>
+    </div>
+
+    <div class="stats">
+      <p>Total Votes: {{ totalVotes }}</p>
+      <p>Total Registered Users: {{ totalUsers }}</p>
+    </div>
+
+    <h3>Add Candidate</h3>
+    <input type="text" placeholder="Candidate Name" [(ngModel)]="newCandidateName" />
+    <input type="text" placeholder="Party Name" [(ngModel)]="newCandidateParty" />
+    <button type="button" (click)="addCandidate()">Add Candidate</button>
+
+    <h3>Manage Candidates</h3>
+    <div class="candidate-item" *ngFor="let candidate of candidates">
+      <div>
+        <strong>{{ candidate.name }}</strong>
+        <p>{{ candidate.party }} | Votes: {{ candidate.votes }}</p>
+      </div>
+      <button type="button" class="delete-btn" (click)="deleteCandidate(candidate.id)">Delete</button>
+    </div>
+
+    <h3>Audit Logs</h3>
+    <div class="log-item" *ngFor="let log of auditLogs">
+      <p><strong>Action:</strong> {{ log.action }}</p>
+      <p><strong>Username:</strong> {{ log.username }}</p>
+      <p><strong>Timestamp:</strong> {{ log.timestamp }}</p>
+    </div>
+  </div>
+</section>

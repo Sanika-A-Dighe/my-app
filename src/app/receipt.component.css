@@ -76,6 +76,10 @@ button:hover {
 }
 
 @media (max-width: 640px) {
+  .receipt-container {
+    padding: 14px;
+  }
+
   .receipt-card {
     padding: 20px;
   }

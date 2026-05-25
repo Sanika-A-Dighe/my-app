@@ -55,3 +55,21 @@ h1 {
 .btn-outline:hover {
   background: #eff6ff;
 }
+
+@media (max-width: 640px) {
+  .home-container {
+    padding: 16px;
+  }
+
+  .home-card {
+    padding: 20px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

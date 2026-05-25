@@ -46,4 +46,10 @@
     flex-wrap: wrap;
     padding: 12px 14px;
   }
+
+  .navbar a,
+  .navbar button {
+    font-size: 13px;
+    padding: 7px 10px;
+  }
 }

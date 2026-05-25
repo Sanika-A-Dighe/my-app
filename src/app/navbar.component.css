@@ -78,10 +78,31 @@
   .navbar {
     flex-direction: column;
     align-items: flex-start;
+    padding: 12px 14px;
   }
 
   .right-section {
     width: 100%;
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 16px;
+  }
+
+  .right-section {
+    gap: 8px;
+  }
+
+  .user {
+    width: 100%;
+    padding-right: 0;
+  }
+
+  .nav-btn {
+    font-size: 13px;
+    padding: 7px 10px;
   }
 }

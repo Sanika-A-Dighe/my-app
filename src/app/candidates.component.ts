@@ -29,6 +29,7 @@ export class CandidatesComponent implements OnInit, OnDestroy {
   ];
 
   currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+  electionStatus: 'Active' | 'Closed' = 'Active';
   countdown = '00:00:00';
   isElectionEnded = false;
   isHumanChecked = false;
@@ -42,6 +43,7 @@ export class CandidatesComponent implements OnInit, OnDestroy {
     if (!this.currentUser) {
       this.router.navigate(['/login']);
     }
+    this.electionStatus = localStorage.getItem('electionStatus') === 'Closed' ? 'Closed' : 'Active';
     this.startCountdown();
   }
 
@@ -53,6 +55,11 @@ export class CandidatesComponent implements OnInit, OnDestroy {
   }
 
   vote(candidate: Candidate): void {
+    if (this.electionStatus === 'Closed') {
+      alert('Election has ended');
+      return;
+    }
+
     if (!this.isHumanChecked) {
       alert('Please verify "I am not a robot"');
       return;
@@ -129,6 +136,13 @@ export class CandidatesComponent implements OnInit, OnDestroy {
       votedAt: new Date().toLocaleString()
     };
     localStorage.setItem('voteReceipt', JSON.stringify(voteReceipt));
+    const auditLogs = JSON.parse(localStorage.getItem('auditLogs') || '[]');
+    auditLogs.push({
+      action: 'Vote Submission',
+      username: currentUser?.name || currentUser?.email || 'User',
+      timestamp: new Date().toLocaleString()
+    });
+    localStorage.setItem('auditLogs', JSON.stringify(auditLogs));
     alert('Vote submitted successfully');
     this.router.navigate(['/success']);
   }

@@ -44,3 +44,13 @@ p {
   background: #2563eb;
   transition: width 0.3s ease;
 }
+
+@media (max-width: 768px) {
+  :host {
+    padding: 16px;
+  }
+
+  div {
+    padding: 14px;
+  }
+}

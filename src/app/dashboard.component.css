@@ -54,3 +54,24 @@ button:disabled {
   cursor: not-allowed;
   transform: none;
 }
+
+@media (max-width: 768px) {
+  :host {
+    padding: 16px;
+  }
+
+  div:first-child {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-avatar {
+    width: 74px;
+    height: 74px;
+  }
+
+  button {
+    width: 100%;
+  }
+}
