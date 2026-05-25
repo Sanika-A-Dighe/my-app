@@ -1,13 +1,16 @@
 <div>
   <h2>Welcome, {{ currentUser?.name }}</h2>
+  <p>Election Ends In: {{ countdown }}</p>
+  <p *ngIf="isElectionEnded">Election has ended</p>
 
-  <div *ngIf="!hasVoted">
+  <div *ngIf="!hasVoted && !isElectionEnded">
     <p>You have not voted yet</p>
     <button type="button" routerLink="/candidates">Go to Vote</button>
   </div>
 
-  <div *ngIf="hasVoted">
-    <p>You have already voted</p>
-    <button type="button" disabled>Go to Vote</button>
+  <div *ngIf="hasVoted || isElectionEnded">
+    <p *ngIf="hasVoted">You have already voted</p>
+    <p *ngIf="isElectionEnded && !hasVoted">Election has ended</p>
+    <button type="button" [disabled]="true">Go to Vote</button>
   </div>
 </div>

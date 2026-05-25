@@ -33,6 +33,11 @@ input {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+input[type='file'] {
+  padding: 9px 10px;
+  background: #f8fafc;
+}
+
 input:focus {
   outline: none;
   border-color: #2563eb;
@@ -66,4 +71,17 @@ button:disabled {
   background: #94a3b8;
   cursor: not-allowed;
   transform: none;
+}
+
+.preview-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.profile-preview {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #d0d5dd;
 }

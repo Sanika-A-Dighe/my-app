@@ -1,7 +1,10 @@
 <h2>Election Results</h2>
 
-<div *ngFor="let candidate of candidates">
+<div *ngFor="let candidate of candidateResults">
   <h3>{{ candidate.name }}</h3>
-  <p>Party: {{ candidate.party }}</p>
-  <p>Total Votes: {{ candidate.votes }}</p>
+  <p>Vote Count: {{ candidate.votes }}</p>
+  <p>Vote Percentage: {{ candidate.percentage | number : '1.0-2' }}%</p>
+  <div class="progress-track">
+    <div class="progress-fill" [style.width.%]="candidate.percentage"></div>
+  </div>
 </div>

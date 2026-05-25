@@ -32,6 +32,14 @@ export class NavbarComponent {
     return currentUser.name || currentUser.email || 'User';
   }
 
+  get profileImage(): string {
+    if (!this.isBrowser) {
+      return '';
+    }
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    return currentUser?.profileImage || '';
+  }
+
   toggleDarkMode(): void {
     if (!this.isBrowser) {
       return;

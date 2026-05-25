@@ -14,6 +14,7 @@ export class RegisterComponent {
   private readonly formBuilder = inject(FormBuilder);
   hasVoted = false;
   submitError = '';
+  profileImageBase64 = '';
 
   readonly registerForm = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
@@ -25,6 +26,21 @@ export class RegisterComponent {
   isInvalid(controlName: 'name' | 'email' | 'password' | 'aadhaar'): boolean {
     const control = this.registerForm.get(controlName);
     return !!control && control.invalid && (control.touched || control.dirty);
+  }
+
+  onImageSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.profileImageBase64 = String(reader.result || '');
+    };
+    reader.readAsDataURL(file);
   }
 
   onSubmit(): void {
@@ -43,8 +59,9 @@ export class RegisterComponent {
       return;
     }
 
-    users.push({ ...formValue, hasVoted: false });
+    users.push({ ...formValue, hasVoted: false, profileImage: this.profileImageBase64 });
     localStorage.setItem('users', JSON.stringify(users));
     this.registerForm.reset();
+    this.profileImageBase64 = '';
   }
 }

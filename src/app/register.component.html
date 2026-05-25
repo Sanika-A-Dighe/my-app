@@ -23,6 +23,15 @@
     <div *ngIf="isInvalid('aadhaar')">Aadhaar must be exactly 12 digits.</div>
   </div>
 
+  <div>
+    <label for="profileImage">Profile Photo</label>
+    <input id="profileImage" type="file" accept="image/*" (change)="onImageSelect($event)" />
+  </div>
+
+  <div *ngIf="profileImageBase64" class="preview-wrap">
+    <img [src]="profileImageBase64" alt="Profile preview" class="profile-preview" />
+  </div>
+
   <button type="submit">Register</button>
 
   <p>Already have an account? <a routerLink="/login">Login</a></p>
