@@ -16,6 +16,10 @@ export class RegisterComponent {
   submitError = '';
   profileImageBase64 = '';
 
+  private generateVoterId(): string {
+    return `VOTER${Date.now().toString().slice(-8)}`;
+  }
+
   readonly registerForm = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
@@ -59,7 +63,12 @@ export class RegisterComponent {
       return;
     }
 
-    users.push({ ...formValue, hasVoted: false, profileImage: this.profileImageBase64 });
+    users.push({
+      ...formValue,
+      hasVoted: false,
+      profileImage: this.profileImageBase64,
+      voterId: this.generateVoterId()
+    });
     localStorage.setItem('users', JSON.stringify(users));
     this.registerForm.reset();
     this.profileImageBase64 = '';

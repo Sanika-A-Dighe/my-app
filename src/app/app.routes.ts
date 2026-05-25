@@ -7,6 +7,7 @@ import { ReceiptComponent } from './receipt.component';
 import { RegisterComponent } from './register.component';
 import { ResultsComponent } from './results.component';
 import { SuccessComponent } from './success.component';
+import { VoterCardComponent } from './voter-card.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -16,5 +17,6 @@ export const routes: Routes = [
   { path: 'candidates', component: CandidatesComponent },
   { path: 'results', component: ResultsComponent },
   { path: 'receipt', component: ReceiptComponent },
-  { path: 'success', component: SuccessComponent }
+  { path: 'success', component: SuccessComponent },
+  { path: 'voter-card', component: VoterCardComponent }
 ];

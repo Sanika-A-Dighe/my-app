@@ -1,6 +1,9 @@
 <section class="receipt-container">
   <div class="receipt-card">
     <h1>Voting Receipt</h1>
+    <div class="avatar-wrap" *ngIf="receipt.profileImage">
+      <img [src]="receipt.profileImage" alt="Voter profile" class="receipt-avatar" />
+    </div>
 
     <div class="row">
       <span class="label">Voter Name</span>

@@ -2,7 +2,9 @@
   <a class="title" routerLink="/dashboard">Online Voting System</a>
 
   <div class="right-section">
+    <img *ngIf="profileImage" [src]="profileImage" alt="Profile" class="profile-avatar" />
     <span class="user">{{ displayUser }}</span>
+    <a routerLink="/voter-card" class="nav-btn">View Voter Card</a>
     <a routerLink="/receipt" class="nav-btn">Voting Receipt</a>
     <button type="button" class="nav-btn" (click)="toggleDarkMode()">
       {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}

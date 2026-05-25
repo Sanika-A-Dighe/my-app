@@ -1,0 +1,9 @@
+<section class="card-page">
+  <div class="voter-card">
+    <h2>Digital Voter ID Card</h2>
+    <img *ngIf="currentUser?.profileImage" [src]="currentUser?.profileImage" alt="Profile" class="photo" />
+    <p><strong>Name:</strong> {{ currentUser?.name || 'N/A' }}</p>
+    <p><strong>Aadhaar:</strong> {{ maskedAadhaar }}</p>
+    <p><strong>Voter ID:</strong> {{ currentUser?.voterId || 'N/A' }}</p>
+  </div>
+</section>

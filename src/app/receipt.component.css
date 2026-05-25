@@ -24,6 +24,20 @@ h1 {
   text-align: center;
 }
 
+.avatar-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.receipt-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #d0d5dd;
+}
+
 .row {
   display: flex;
   justify-content: space-between;

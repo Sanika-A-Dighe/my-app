@@ -1,4 +1,5 @@
 <div>
+  <img *ngIf="currentUser?.profileImage" [src]="currentUser?.profileImage" alt="Profile" class="dashboard-avatar" />
   <h2>Welcome, {{ currentUser?.name }}</h2>
   <p>Election Ends In: {{ countdown }}</p>
   <p *ngIf="isElectionEnded">Election has ended</p>

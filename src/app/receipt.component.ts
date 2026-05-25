@@ -7,6 +7,7 @@ type VoteReceipt = {
   candidateName: string;
   partyName: string;
   votedAt: string;
+  profileImage: string;
 };
 
 @Component({
@@ -25,7 +26,8 @@ export class ReceiptComponent {
     voterAadhaar: this.maskAadhaar(this.savedReceipt?.voterAadhaar || this.currentUser?.aadhaar || ''),
     candidateName: this.savedReceipt?.candidateName || 'N/A',
     partyName: this.savedReceipt?.partyName || 'N/A',
-    votedAt: this.savedReceipt?.votedAt || 'N/A'
+    votedAt: this.savedReceipt?.votedAt || 'N/A',
+    profileImage: this.currentUser?.profileImage || ''
   };
 
   downloadReceipt(): void {

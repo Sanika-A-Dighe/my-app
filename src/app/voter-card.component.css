@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.card-page {
+  min-height: calc(100vh - 90px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.voter-card {
+  width: min(420px, 100%);
+  background: #ffffff;
+  border: 1px solid #e4e7ec;
+  border-radius: 16px;
+  box-shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
+  padding: 24px;
+  text-align: center;
+}
+
+h2 {
+  margin: 0 0 16px;
+  color: #0f172a;
+}
+
+.photo {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #d0d5dd;
+  margin-bottom: 14px;
+}
+
+p {
+  margin: 8px 0;
+  color: #334155;
+}

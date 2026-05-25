@@ -37,6 +37,14 @@
   padding-right: 6px;
 }
 
+.profile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #d0d5dd;
+}
+
 .nav-btn {
   text-decoration: none;
   border: 1px solid #d0d5dd;
