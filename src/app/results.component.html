@@ -1,28 +1,84 @@
 <section class="results-page">
-  <h2>Election Results</h2>
-
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>Vote Share</h3>
-      <div class="chart-box">
-        <canvas #pieChartCanvas></canvas>
-      </div>
+  <header class="results-header">
+    <div>
+      <p class="eyebrow">Election Results</p>
+      <h2>Live vote summary</h2>
     </div>
 
-    <div class="chart-card">
-      <h3>Live Vote Count</h3>
+    <div class="summary-grid">
+      <div class="summary-card highlight">
+        <span>Leading Candidate</span>
+        <strong>{{ leadingCandidateName }}</strong>
+      </div>
+      <div class="summary-card">
+        <span>Total Votes</span>
+        <strong>{{ totalVotes }}</strong>
+      </div>
+      <div class="summary-card">
+        <span>Candidates</span>
+        <strong>{{ totalCandidates }}</strong>
+      </div>
+    </div>
+  </header>
+
+  <div class="chart-grid">
+    <article class="chart-card">
+      <h3>Bar Chart</h3>
       <div class="chart-box">
         <canvas #barChartCanvas></canvas>
       </div>
-    </div>
+    </article>
+
+    <article class="chart-card">
+      <h3>Line Chart</h3>
+      <div class="chart-box">
+        <canvas #lineChartCanvas></canvas>
+      </div>
+    </article>
+
+    <article class="chart-card full-width">
+      <h3>Pie Chart</h3>
+      <div class="chart-box large">
+        <canvas #pieChartCanvas></canvas>
+      </div>
+    </article>
   </div>
 
-  <div class="candidate-card" *ngFor="let candidate of candidateResults">
-    <h3>{{ candidate.name }}</h3>
-    <p>Vote Count: {{ candidate.votes }}</p>
-    <p>Vote Percentage: {{ candidate.percentage | number : '1.0-2' }}%</p>
-    <div class="progress-track">
-      <div class="progress-fill" [style.width.%]="candidate.percentage"></div>
+  <article class="table-card">
+    <h3>Candidate Table</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Candidate Name</th>
+            <th>Party</th>
+            <th>Votes</th>
+            <th>Percentage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let candidate of candidateResults">
+            <td>{{ candidate.name }}</td>
+            <td>{{ candidate.party }}</td>
+            <td>{{ candidate.votes }}</td>
+            <td>{{ candidate.percentage | number : '1.0-2' }}%</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  </article>
+
+  <div class="candidate-grid">
+    <article class="candidate-card" *ngFor="let candidate of candidateResults">
+      <div class="candidate-title">
+        <h4>{{ candidate.name }}</h4>
+        <span>{{ candidate.party }}</span>
+      </div>
+      <p class="vote-line">Votes: {{ candidate.votes }}</p>
+      <p class="vote-line">Vote Share: {{ candidate.percentage | number : '1.0-2' }}%</p>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="candidate.percentage"></div>
+      </div>
+    </article>
   </div>
 </section>

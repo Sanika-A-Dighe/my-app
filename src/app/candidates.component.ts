@@ -1,14 +1,9 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnDestroy, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
-type Candidate = {
-  id: number;
-  name: string;
-  party: string;
-  votes: number;
-};
+import { Subscription } from 'rxjs';
+import { Candidate, ElectionService } from './election.service';
 
 @Component({
   selector: 'app-candidates',
@@ -19,16 +14,15 @@ type Candidate = {
 })
 export class CandidatesComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly electionService = inject(ElectionService);
+  private stateSubscription: Subscription | null = null;
   private timerRef: ReturnType<typeof setInterval> | null = null;
-  private readonly electionEndTime = new Date('2026-04-20T23:59:59');
 
-  candidates: Candidate[] = [
-    { id: 1, name: 'Candidate 1', party: 'Party A', votes: 0 },
-    { id: 2, name: 'Candidate 2', party: 'Party B', votes: 0 },
-    { id: 3, name: 'Candidate 3', party: 'Party C', votes: 0 }
-  ];
-
-  currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+  candidates: Candidate[] = [];
+  currentUser: any = null;
+  hasVoted = false;
   electionStatus: 'Active' | 'Closed' = 'Active';
   countdown = '00:00:00';
   isElectionEnded = false;
@@ -40,14 +34,36 @@ export class CandidatesComponent implements OnInit, OnDestroy {
   selectedCandidate: Candidate | null = null;
 
   ngOnInit(): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
+    this.currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
     if (!this.currentUser) {
       this.router.navigate(['/login']);
+      return;
     }
-    this.electionStatus = localStorage.getItem('electionStatus') === 'Closed' ? 'Closed' : 'Active';
-    this.startCountdown();
+
+    this.electionService.initialize();
+    this.syncState();
+    this.stateSubscription = this.electionService.state$.subscribe((state) => {
+      this.candidates = state.candidates;
+      this.countdown = state.countdown;
+      this.isElectionEnded = state.electionEnded;
+      this.electionStatus = state.electionStatus;
+    });
+
+    this.timerRef = setInterval(() => {
+      this.syncState();
+    }, 1000);
   }
 
   ngOnDestroy(): void {
+    if (this.stateSubscription) {
+      this.stateSubscription.unsubscribe();
+      this.stateSubscription = null;
+    }
+
     if (this.timerRef) {
       clearInterval(this.timerRef);
       this.timerRef = null;
@@ -55,18 +71,20 @@ export class CandidatesComponent implements OnInit, OnDestroy {
   }
 
   vote(candidate: Candidate): void {
-    if (this.electionStatus === 'Closed') {
+    this.syncState();
+
+    if (this.electionStatus === 'Closed' || this.isElectionEnded) {
       alert('Election has ended');
+      return;
+    }
+
+    if (this.hasVoted) {
+      alert('You have already voted');
       return;
     }
 
     if (!this.isHumanChecked) {
       alert('Please verify "I am not a robot"');
-      return;
-    }
-
-    if (this.isElectionEnded) {
-      alert('Election has ended');
       return;
     }
 
@@ -88,7 +106,15 @@ export class CandidatesComponent implements OnInit, OnDestroy {
     }
 
     this.showOtpPopup = false;
-    this.submitVote(this.selectedCandidate);
+
+    const result = this.electionService.vote(this.selectedCandidate.id);
+    if (!result.success) {
+      alert(result.message);
+      return;
+    }
+
+    alert(result.message);
+    this.router.navigate(['/success']);
   }
 
   closeOtpPopup(): void {
@@ -98,88 +124,21 @@ export class CandidatesComponent implements OnInit, OnDestroy {
     this.selectedCandidate = null;
   }
 
-  private submitVote(candidate: Candidate): void {
-    if (this.isElectionEnded) {
-      alert('Election has ended');
-      return;
-    }
+  trackByCandidateId(_: number, candidate: Candidate): number {
+    return candidate.id;
+  }
 
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-    const aadhaar = currentUser?.aadhaar;
-    const votedAadhaars = JSON.parse(localStorage.getItem('votedAadhaars') || '[]');
-
-    if (aadhaar && votedAadhaars.includes(aadhaar)) {
-      alert('This Aadhaar has already voted');
-      return;
-    }
-
-    if (currentUser?.hasVoted) {
-      alert('You have already voted');
-      return;
-    }
-
-    candidate.votes += 1;
-    currentUser.hasVoted = true;
-
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    localStorage.setItem('candidates', JSON.stringify(this.candidates));
-    if (aadhaar) {
-      votedAadhaars.push(aadhaar);
-      localStorage.setItem('votedAadhaars', JSON.stringify(votedAadhaars));
-    }
-    const maskedAadhaar = aadhaar ? `XXXXXXXX${aadhaar.slice(-4)}` : 'N/A';
-    const voteReceipt = {
-      voterName: currentUser?.name || 'N/A',
-      voterAadhaar: maskedAadhaar,
-      candidateName: candidate.name,
-      partyName: candidate.party,
-      votedAt: new Date().toLocaleString()
-    };
-    localStorage.setItem('voteReceipt', JSON.stringify(voteReceipt));
-    const auditLogs = JSON.parse(localStorage.getItem('auditLogs') || '[]');
-    auditLogs.push({
-      action: 'Vote Submission',
-      username: currentUser?.name || currentUser?.email || 'User',
-      timestamp: new Date().toLocaleString()
-    });
-    localStorage.setItem('auditLogs', JSON.stringify(auditLogs));
-    alert('Vote submitted successfully');
-    this.router.navigate(['/success']);
+  private syncState(): void {
+    const state = this.electionService.getState();
+    this.currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    this.hasVoted = !!this.currentUser?.hasVoted;
+    this.candidates = state.candidates;
+    this.countdown = this.electionService.getCountdown();
+    this.isElectionEnded = state.electionEnded;
+    this.electionStatus = state.electionStatus;
   }
 
   private generateOtp(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
-  }
-
-  private startCountdown(): void {
-    this.updateCountdown();
-    this.timerRef = setInterval(() => {
-      this.updateCountdown();
-    }, 1000);
-  }
-
-  private updateCountdown(): void {
-    const now = new Date().getTime();
-    const end = this.electionEndTime.getTime();
-    const diff = end - now;
-
-    if (diff <= 0) {
-      this.countdown = '00:00:00';
-      this.isElectionEnded = true;
-      if (this.timerRef) {
-        clearInterval(this.timerRef);
-        this.timerRef = null;
-      }
-      return;
-    }
-
-    const totalSeconds = Math.floor(diff / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    this.countdown = `${hours.toString().padStart(2, '0')}:${minutes
-      .toString()
-      .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 }

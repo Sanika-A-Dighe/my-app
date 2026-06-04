@@ -10,22 +10,11 @@ import {
   inject
 } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-  Chart,
-  ChartConfiguration,
-  ChartData,
-  ChartType,
-  registerables
-} from 'chart.js';
+import { Subscription } from 'rxjs';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { Candidate, ElectionService } from './election.service';
 
 Chart.register(...registerables);
-
-type Candidate = {
-  id: number;
-  name: string;
-  party: string;
-  votes: number;
-};
 
 type CandidateResult = Candidate & {
   percentage: number;
@@ -42,17 +31,24 @@ export class ResultsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly electionService = inject(ElectionService);
+  private readonly colors = ['#2563eb', '#16a34a', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
   @ViewChild('pieChartCanvas') pieChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('barChartCanvas') barChartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('lineChartCanvas') lineChartCanvas?: ElementRef<HTMLCanvasElement>;
 
-  candidates: Candidate[] = [];
-  totalVotes = 0;
   candidateResults: CandidateResult[] = [];
-  private refreshTimer: ReturnType<typeof setInterval> | null = null;
+  leadingCandidateName = 'N/A';
+  totalVotes = 0;
+  totalCandidates = 0;
+
+  private stateSubscription: Subscription | null = null;
   private pieChart: Chart<'pie'> | null = null;
   private barChart: Chart<'bar'> | null = null;
+  private lineChart: Chart<'line'> | null = null;
   private viewReady = false;
+  private lastSignature = '';
 
   ngOnInit(): void {
     if (!this.isBrowser) {
@@ -65,11 +61,14 @@ export class ResultsComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.loadResults();
-    this.refreshTimer = setInterval(() => {
-      this.loadResults();
+    this.electionService.initialize();
+    this.stateSubscription = this.electionService.state$.subscribe((state) => {
+      this.totalVotes = state.totalVotes;
+      this.leadingCandidateName = state.leadingCandidate?.name || 'N/A';
+      this.totalCandidates = state.candidates.length;
+      this.candidateResults = this.buildResults(state.candidates);
       this.renderCharts();
-    }, 1000);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -78,33 +77,44 @@ export class ResultsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.refreshTimer) {
-      clearInterval(this.refreshTimer);
-      this.refreshTimer = null;
+    if (this.stateSubscription) {
+      this.stateSubscription.unsubscribe();
+      this.stateSubscription = null;
     }
 
     this.destroyCharts();
   }
 
-  private loadResults(): void {
-    const savedCandidates = JSON.parse(localStorage.getItem('candidates') || '[]');
-    this.candidates = Array.isArray(savedCandidates) ? savedCandidates : [];
+  private buildResults(candidates: Candidate[]): CandidateResult[] {
+    const totalVotes = candidates.reduce((sum, candidate) => sum + (Number(candidate.votes) || 0), 0);
 
-    this.totalVotes = this.candidates.reduce((sum, candidate) => sum + candidate.votes, 0);
-    this.candidateResults = this.candidates.map((candidate) => ({
+    return candidates.map((candidate) => ({
       ...candidate,
-      percentage: this.totalVotes > 0 ? (candidate.votes / this.totalVotes) * 100 : 0
+      percentage: totalVotes > 0 ? ((Number(candidate.votes) || 0) / totalVotes) * 100 : 0
     }));
   }
 
   private renderCharts(): void {
-    if (!this.isBrowser || !this.viewReady || !this.pieChartCanvas || !this.barChartCanvas) {
+    if (!this.isBrowser || !this.viewReady || !this.pieChartCanvas || !this.barChartCanvas || !this.lineChartCanvas) {
       return;
     }
 
+    const signature = JSON.stringify(
+      this.candidateResults.map((candidate) => ({
+        id: candidate.id,
+        votes: candidate.votes
+      }))
+    );
+
+    if (signature === this.lastSignature && this.pieChart && this.barChart && this.lineChart) {
+      return;
+    }
+
+    this.lastSignature = signature;
+
     const labels = this.candidateResults.map((candidate) => candidate.name);
     const votes = this.candidateResults.map((candidate) => candidate.votes);
-    const colors = ['#2563eb', '#16a34a', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+    const dataColors = labels.map((_, index) => this.colors[index % this.colors.length]);
 
     this.destroyCharts();
 
@@ -115,7 +125,7 @@ export class ResultsComponent implements OnInit, AfterViewInit, OnDestroy {
         datasets: [
           {
             data: votes,
-            backgroundColor: labels.map((_, index) => colors[index % colors.length]),
+            backgroundColor: dataColors,
             borderColor: '#ffffff',
             borderWidth: 2
           }
@@ -140,8 +150,8 @@ export class ResultsComponent implements OnInit, AfterViewInit, OnDestroy {
           {
             label: 'Votes',
             data: votes,
-            backgroundColor: '#2563eb',
-            borderRadius: 8
+            backgroundColor: dataColors,
+            borderRadius: 10
           }
         ]
       },
@@ -164,8 +174,40 @@ export class ResultsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     };
 
+    const lineConfig: ChartConfiguration<'line', number[], string> = {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Votes',
+            data: votes,
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.12)',
+            pointBackgroundColor: dataColors,
+            pointRadius: 5,
+            tension: 0.35,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            }
+          }
+        }
+      }
+    };
+
     this.pieChart = new Chart(this.pieChartCanvas.nativeElement, pieConfig);
     this.barChart = new Chart(this.barChartCanvas.nativeElement, barConfig);
+    this.lineChart = new Chart(this.lineChartCanvas.nativeElement, lineConfig);
   }
 
   private destroyCharts(): void {
@@ -177,6 +219,11 @@ export class ResultsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.barChart) {
       this.barChart.destroy();
       this.barChart = null;
+    }
+
+    if (this.lineChart) {
+      this.lineChart.destroy();
+      this.lineChart = null;
     }
   }
 }

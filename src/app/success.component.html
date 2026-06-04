@@ -15,7 +15,17 @@
       <span class="check-stem"></span>
       <span class="check-kick"></span>
     </div>
+
     <h1>Voting Done Successfully!</h1>
-    <a routerLink="/receipt" class="receipt-btn">View Receipt</a>
+
+    <div class="vote-meta" *ngIf="receipt">
+      <p><strong>Selected Candidate:</strong> {{ receipt.candidateName }}</p>
+      <p><strong>Vote Timestamp:</strong> {{ receipt.votedAt }}</p>
+    </div>
+
+    <div class="actions">
+      <a routerLink="/receipt" class="receipt-btn">View Receipt</a>
+      <a routerLink="/results" class="receipt-btn secondary">View Results</a>
+    </div>
   </div>
 </section>

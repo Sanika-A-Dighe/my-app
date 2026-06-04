@@ -65,6 +65,24 @@ h1 {
   color: #0f172a;
 }
 
+.vote-meta {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 18px;
+}
+
+.vote-meta p {
+  margin: 0;
+  color: #334155;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .receipt-btn {
   display: inline-block;
   text-decoration: none;
@@ -79,6 +97,16 @@ h1 {
 .receipt-btn:hover {
   background: #1d4ed8;
   transform: translateY(-1px);
+}
+
+.receipt-btn.secondary {
+  background: #ffffff;
+  color: #1d4ed8;
+  border: 1px solid #1d4ed8;
+}
+
+.receipt-btn.secondary:hover {
+  background: #eff6ff;
 }
 
 .confetti-wrap {
@@ -181,6 +209,10 @@ h1 {
   }
 
   .receipt-btn {
+    width: 100%;
+  }
+
+  .actions {
     width: 100%;
   }
 }

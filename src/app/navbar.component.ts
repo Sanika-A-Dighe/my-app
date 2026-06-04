@@ -1,12 +1,13 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, OnDestroy, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { ElectionService } from './election.service';
 
-type Candidate = {
-  id: number;
-  name: string;
-  party: string;
-  votes: number;
+type CurrentUser = {
+  name?: string;
+  email?: string;
+  profileImage?: string;
 };
 
 @Component({
@@ -20,7 +21,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly router = inject(Router);
-  private timerRef: ReturnType<typeof setInterval> | null = null;
+  private readonly electionService = inject(ElectionService);
+  private stateSubscription: Subscription | null = null;
 
   isDarkMode = false;
   displayUser = 'Guest';
@@ -28,11 +30,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
   countdown = '00:00:00';
   leadingCandidate = 'N/A';
   totalVotes = 0;
-  isElectionEnded = false;
 
   constructor() {
     if (this.isBrowser) {
-      this.isDarkMode = localStorage.getItem('theme') === 'dark';
+      this.isDarkMode = localStorage.getItem('darkMode') === 'true' || localStorage.getItem('theme') === 'dark';
+      this.applyTheme();
     }
   }
 
@@ -41,16 +43,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.refreshState();
-    this.timerRef = setInterval(() => {
-      this.refreshState();
-    }, 1000);
+    this.electionService.initialize();
+    this.refreshUser();
+    this.syncState();
+    this.stateSubscription = this.electionService.state$.subscribe(() => {
+      this.refreshUser();
+      this.syncState();
+    });
   }
 
   ngOnDestroy(): void {
-    if (this.timerRef) {
-      clearInterval(this.timerRef);
-      this.timerRef = null;
+    if (this.stateSubscription) {
+      this.stateSubscription.unsubscribe();
+      this.stateSubscription = null;
     }
   }
 
@@ -60,14 +65,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     this.isDarkMode = !this.isDarkMode;
+    localStorage.setItem('darkMode', String(this.isDarkMode));
     localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
     this.applyTheme();
   }
 
   logout(): void {
     if (this.isBrowser) {
-      const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-      const auditLogs = JSON.parse(localStorage.getItem('auditLogs') || '[]');
+      const currentUser = this.getCurrentUser();
+      const auditLogs = this.readJsonArray('auditLogs');
       auditLogs.push({
         action: 'Logout',
         username: currentUser?.name || currentUser?.email || 'User',
@@ -82,59 +88,46 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  private refreshState(): void {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-    this.displayUser = currentUser ? currentUser.name || currentUser.email || 'User' : 'Guest';
-    this.profileImage = currentUser?.profileImage || '';
+  private syncState(): void {
+    const state = this.electionService.getState();
+    const leadingCandidate = this.electionService.getLeadingCandidate();
+    this.countdown = this.electionService.getCountdown();
+    this.leadingCandidate = leadingCandidate?.name || 'N/A';
+    this.totalVotes = this.electionService.getTotalVotes();
 
-    const candidates = JSON.parse(localStorage.getItem('candidates') || '[]') as Candidate[];
-    const safeCandidates = Array.isArray(candidates) ? candidates : [];
-    this.totalVotes = safeCandidates.reduce((sum, candidate) => sum + (candidate.votes || 0), 0);
-    this.leadingCandidate = this.getLeadingCandidate(safeCandidates);
-
-    this.countdown = this.getCountdown();
-    this.isElectionEnded = this.countdown === '00:00:00';
-
-    if (this.isElectionEnded) {
+    if (state.electionEnded) {
       localStorage.setItem('electionStatus', 'Closed');
     }
 
     this.applyTheme();
   }
 
-  private getLeadingCandidate(candidates: Candidate[]): string {
-    if (!candidates.length) {
-      return 'N/A';
-    }
-
-    const leader = candidates.reduce((top, candidate) =>
-      candidate.votes > top.votes ? candidate : top
-    );
-
-    return leader.votes > 0 ? leader.name : 'N/A';
+  private refreshUser(): void {
+    const currentUser = this.getCurrentUser();
+    this.displayUser = currentUser ? currentUser.name || currentUser.email || 'User' : 'Guest';
+    this.profileImage = currentUser?.profileImage || '';
   }
 
-  private getCountdown(): string {
-    const endTimeValue = localStorage.getItem('electionEndTime');
-    if (!endTimeValue) {
-      return '00:00:00';
+  private getCurrentUser(): CurrentUser | null {
+    try {
+      return JSON.parse(localStorage.getItem('currentUser') || 'null');
+    } catch {
+      return null;
     }
+  }
 
-    const endTime = new Date(endTimeValue).getTime();
-    const diff = endTime - Date.now();
+  private readJsonArray(key: string): any[] {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) {
+        return [];
+      }
 
-    if (diff <= 0) {
-      return '00:00:00';
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
     }
-
-    const totalSeconds = Math.floor(diff / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${hours.toString().padStart(2, '0')}:${minutes
-      .toString()
-      .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
   private applyTheme(): void {
