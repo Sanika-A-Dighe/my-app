@@ -1,11 +1,23 @@
 <nav class="navbar">
   <a class="title" routerLink="/dashboard">Online Voting System</a>
 
+  <div class="status-wrap">
+    <div class="status-line">
+      <img *ngIf="profileImage" [src]="profileImage" alt="Profile" class="profile-avatar" />
+      <span class="user">{{ displayUser }}</span>
+    </div>
+
+    <div class="status-grid">
+      <span class="status-item">Voting Ends In: {{ countdown }}</span>
+      <span class="status-item">Leading Candidate: {{ leadingCandidate }}</span>
+      <span class="status-item">Total Votes: {{ totalVotes }}</span>
+    </div>
+  </div>
+
   <div class="right-section">
-    <img *ngIf="profileImage" [src]="profileImage" alt="Profile" class="profile-avatar" />
-    <span class="user">{{ displayUser }}</span>
-    <a routerLink="/voter-card" class="nav-btn">View Voter Card</a>
+    <a routerLink="/voter-card" class="nav-btn">Voter Card</a>
     <a routerLink="/receipt" class="nav-btn">Voting Receipt</a>
+    <a routerLink="/results" class="nav-btn">Results</a>
     <button type="button" class="nav-btn" (click)="toggleDarkMode()">
       {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
     </button>

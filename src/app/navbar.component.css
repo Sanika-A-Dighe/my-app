@@ -7,9 +7,9 @@
 
 .navbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 16px;
   padding: 12px 20px;
   background: #ffffff;
   border-bottom: 1px solid #e4e7ec;
@@ -17,24 +17,35 @@
 }
 
 .title {
+  flex: 0 0 auto;
   text-decoration: none;
   color: #0f172a;
   font-size: 18px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
-.right-section {
+.status-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.status-line {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  min-width: 0;
 }
 
 .user {
   font-size: 14px;
+  font-weight: 600;
   color: #475467;
-  padding-right: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-avatar {
@@ -43,6 +54,33 @@
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #d0d5dd;
+  flex: 0 0 auto;
+}
+
+.status-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.right-section {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .nav-btn {
@@ -74,11 +112,10 @@
   color: #ffffff;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1180px) {
   .navbar {
-    flex-direction: column;
     align-items: flex-start;
-    padding: 12px 14px;
+    flex-wrap: wrap;
   }
 
   .right-section {
@@ -87,22 +124,41 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
+  .navbar {
+    padding: 12px 14px;
+  }
+
   .title {
     font-size: 16px;
+  }
+
+  .status-item,
+  .nav-btn {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+
+  .status-grid {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 520px) {
+  .status-line {
+    align-items: flex-start;
+  }
+
+  .user {
+    white-space: normal;
   }
 
   .right-section {
     gap: 8px;
   }
 
-  .user {
-    width: 100%;
-    padding-right: 0;
-  }
-
   .nav-btn {
-    font-size: 13px;
-    padding: 7px 10px;
+    width: 100%;
+    text-align: center;
   }
 }

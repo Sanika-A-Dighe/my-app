@@ -48,7 +48,13 @@ export class LoginComponent {
     );
 
     if (matchedUser) {
+      const startTime = new Date();
+      const endTime = new Date(startTime.getTime() + 3 * 60 * 60 * 1000);
+
       localStorage.setItem('currentUser', JSON.stringify(matchedUser));
+      localStorage.setItem('electionStartTime', startTime.toISOString());
+      localStorage.setItem('electionEndTime', endTime.toISOString());
+      localStorage.setItem('electionStatus', 'Active');
       const auditLogs = JSON.parse(localStorage.getItem('auditLogs') || '[]');
       auditLogs.push({
         action: 'User Login',

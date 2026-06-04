@@ -18,6 +18,7 @@ export class App implements OnInit, OnDestroy {
   private routerSubscription: Subscription | null = null;
   private readonly sessionTimeoutMs = 5 * 60 * 1000;
   private readonly activityEvents: Array<keyof WindowEventMap> = ['click', 'mousemove', 'keydown'];
+  private readonly publicRoutes = ['/', '/login', '/register'];
 
   protected readonly title = signal('my-app');
   showNavbar = true;
@@ -90,6 +91,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   private updateNavbarVisibility(url: string): void {
-    this.showNavbar = url !== '/login' && url !== '/register';
+    const currentUser = this.isBrowser ? localStorage.getItem('currentUser') : null;
+    this.showNavbar = !!currentUser && !this.publicRoutes.includes(url);
   }
 }

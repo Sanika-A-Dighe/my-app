@@ -1,10 +1,28 @@
-<h2>Election Results</h2>
+<section class="results-page">
+  <h2>Election Results</h2>
 
-<div *ngFor="let candidate of candidateResults">
-  <h3>{{ candidate.name }}</h3>
-  <p>Vote Count: {{ candidate.votes }}</p>
-  <p>Vote Percentage: {{ candidate.percentage | number : '1.0-2' }}%</p>
-  <div class="progress-track">
-    <div class="progress-fill" [style.width.%]="candidate.percentage"></div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Vote Share</h3>
+      <div class="chart-box">
+        <canvas #pieChartCanvas></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Live Vote Count</h3>
+      <div class="chart-box">
+        <canvas #barChartCanvas></canvas>
+      </div>
+    </div>
   </div>
-</div>
+
+  <div class="candidate-card" *ngFor="let candidate of candidateResults">
+    <h3>{{ candidate.name }}</h3>
+    <p>Vote Count: {{ candidate.votes }}</p>
+    <p>Vote Percentage: {{ candidate.percentage | number : '1.0-2' }}%</p>
+    <div class="progress-track">
+      <div class="progress-fill" [style.width.%]="candidate.percentage"></div>
+    </div>
+  </div>
+</section>

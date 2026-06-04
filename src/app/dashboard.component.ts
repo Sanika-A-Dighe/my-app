@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnDestroy, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 @Component({
@@ -11,20 +11,31 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
   private timerRef: ReturnType<typeof setInterval> | null = null;
-  private readonly electionEndTime = new Date('2026-04-20T23:59:59');
 
-  currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-  userName = this.currentUser ? this.currentUser.name : '';
-  hasVoted = this.currentUser ? !!this.currentUser.hasVoted : false;
+  currentUser: any = null;
+  userName = '';
+  hasVoted = false;
   countdown = '00:00:00';
   isElectionEnded = false;
+  profileImage = '';
 
   ngOnInit(): void {
-    if (!this.currentUser) {
-      this.router.navigate(['/login']);
+    if (!this.isBrowser) {
+      return;
     }
 
+    this.currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    if (!this.currentUser) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.userName = this.currentUser.name || this.currentUser.email || '';
+    this.hasVoted = !!this.currentUser.hasVoted;
+    this.profileImage = this.currentUser.profileImage || '';
     this.startCountdown();
   }
 
@@ -37,19 +48,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private startCountdown(): void {
     this.updateCountdown();
-    this.timerRef = setInterval(() => {
-      this.updateCountdown();
-    }, 1000);
+    this.timerRef = setInterval(() => this.updateCountdown(), 1000);
   }
 
   private updateCountdown(): void {
-    const now = new Date().getTime();
-    const end = this.electionEndTime.getTime();
-    const diff = end - now;
+    const endTimeValue = localStorage.getItem('electionEndTime');
+    if (!endTimeValue) {
+      this.countdown = '00:00:00';
+      this.isElectionEnded = true;
+      return;
+    }
+
+    const endTime = new Date(endTimeValue).getTime();
+    const diff = endTime - Date.now();
 
     if (diff <= 0) {
       this.countdown = '00:00:00';
       this.isElectionEnded = true;
+      localStorage.setItem('electionStatus', 'Closed');
       if (this.timerRef) {
         clearInterval(this.timerRef);
         this.timerRef = null;
@@ -61,9 +77,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-
     this.countdown = `${hours.toString().padStart(2, '0')}:${minutes
       .toString()
       .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    this.isElectionEnded = false;
   }
 }
